@@ -1,6 +1,6 @@
 <?php
 	set_time_limit(60*5);
-	error_reporting(0);
+	#error_reporting(0);
 
 	include('connect.php');
 	
@@ -24,6 +24,18 @@
 		}
 	}
 	
+	function check_if_link_is_up_to_date_in_database($mysqli, $link)
+	{
+		$sql = "SELECT * FROM links WHERE url = '$link' AND time_stamp > TIMESTAMP(DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 24 HOUR));";
+		$result = $mysqli->query($sql);
+
+		if ($result->num_rows > 0) {
+			return true;		
+		} else {
+			return false;
+		}
+	}
+	
 	function add_link_to_database($mysqli, $link)
 	{
 		$sql = 'INSERT INTO `links` (url, time_stamp) VALUES ("'.$link.'", (SELECT CURRENT_TIMESTAMP));';
@@ -32,7 +44,7 @@
 	
 	function update_link_in_database($mysqli, $link)
 	{
-		$sql = 'INSERT INTO `links` (url, time_stamp) VALUES ("'.$link.'", (SELECT CURRENT_TIMESTAMP));';
+		$sql = 'UPDATE `links` SET time_stamp = CURRENT_TIMESTAMP WHERE url = "'.$link.'";';
 		query($mysqli, $sql);
 	}
 	
@@ -56,13 +68,23 @@
 <?php
 	function crawl($mysqli, $link)
 	{
+		echo filter_var($link, FILTER_VALIDATE_URL);
+		
 		if(filter_var($link, FILTER_VALIDATE_URL) AND (str_starts_with($link, 'http://') OR str_starts_with($link, 'https://'))) {
 			$crawler = new Crawler($link);
 			
 			echo $link."<br>";
 			
-			add_link_to_database($mysqli, $link);
-			
+			if (check_if_link_is_in_database($mysqli, $link) == true)
+			{
+				if (check_if_link_is_up_to_date_in_database($mysqli, $link) == false)
+				{
+					update_link_in_database($mysqli, $link);
+				}
+			} else {
+				add_link_to_database($mysqli, $link);
+			}
+						
 			echo "<hr>";
 			
 			$links = crawler_get_links($crawler);
@@ -83,7 +105,7 @@
 					if (filter_var($link, FILTER_VALIDATE_URL)) {
 						crawl($mysqli, $link);
 					} else {
-						// nicht möglich
+						echo "Die URL des Links zum Crawlen konnte nicht korrekt umgewandelt werden!";
 					}
 					
 					echo "<hr>";
