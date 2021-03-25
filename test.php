@@ -1,5 +1,5 @@
 <?php
-	set_time_limit(60*5);
+	set_time_limit(60*60);
 	#error_reporting(0);
 
 	include('connect.php');
@@ -83,7 +83,7 @@
 		$sql = "SELECT (SELECT id AS id_word FROM word WHERE word = '$word') AS id_word,
 					   (SELECT id FROM link WHERE url = '$link') AS id_link;";
 		$result = $mysqli->query($sql);
-
+		
 		if ($result->num_rows == 1) {
 			while($row = $result->fetch_assoc()) 
 			{
@@ -141,6 +141,8 @@
 			echo $link."<br>";
 			
 			$title = crawler_get_title($crawler);
+			$title = str_replace("\"", "", $title);
+			$title = str_replace("'", "", $title);
 			
 			if (check_if_link_is_in_database($mysqli, $link) == true)
 			{
@@ -170,7 +172,10 @@
 						{
 							add_relation_word_is_stop_word_to_database($mysqli, $word);
 						}
-						
+					}
+					
+					if (strlen($word) <= 255)
+					{
 						add_relation_word_is_in_link_to_database($mysqli, $link, $word, $count);
 					}
 				}
@@ -231,8 +236,9 @@
 		<h2>Webcrawler</h2>
 		
 <?php
-	crawl($mysqli, 'http://www.dhbw-heidenheim.de', 1);
-	#crawl($mysqli, 'https://de.wikipedia.org/wiki/Rainer_Kuhlen');
+	#crawl($mysqli, 'http://www.dhbw-heidenheim.de', 1);
+	#crawl($mysqli, 'https://de.wikipedia.org/wiki/Rainer_Kuhlen', 1);
+	crawl($mysqli, 'https://www.heidenheim.de', 1);
 ?>
 
 	</body>
