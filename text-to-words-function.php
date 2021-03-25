@@ -2,11 +2,12 @@
 	function text_to_words_array_with_count($text) 
 	{
 		$words = $text;
-		
+				
 		// ----- remove JavaScript Code -----
 		$words = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $words);
 		
 		// ----- remove HTML TAGs -----
+		$words = strip_tags($words);
 		$words = preg_replace ('/<[^>]*>/', ' ', $words);
 		
 		// ----- remove control characters -----
@@ -94,8 +95,8 @@
 		$words = str_replace("...", '', $words);
 		$words = str_replace("…", '', $words);
 				
-		$words = preg_replace("/[^a-zA-Z0-9\s`~!@#$%^&*()_+-={}|:;<>?,.\/\"\'\\\[\]]/", '', $words);
-		#$words = preg_replace("/[^a-zA-Z0-9\s]/", '', $words);
+		#$words = preg_replace("/[^a-zA-Z0-9\s`~!@#$%^&*()_+-={}|:;<>?,.\/\"\'\\\[\]]/", '', $words);
+		$words = preg_replace("/[^a-zA-Z0-9\s\-]/", '', $words);
 		
 		$words = explode(' ', trim($words));
 		
