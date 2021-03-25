@@ -6,10 +6,6 @@
 	
 	include('query.php');
 	
-	include('initialize.php');
-	#$sql = "USE `dbps-web-crawler`;";
-	#query($mysqli, $sql);
-	
 	include('crawler.php');
 	
 	include('text-to-words-function.php');
@@ -301,6 +297,13 @@
         $mode = "search";
         echo "The 'mode' argument is missing. Possible are 'search', 'add_link' and 'worker'. Using default 'search' ...";
     } 
+	
+	if ($mode == 'test') {
+		include('initialize.php');
+	}
+	
+	$sql = "USE `dbps-web-crawler`;";
+	query($mysqli, $sql);
 	
 	if ($mode == 'search')
     {
