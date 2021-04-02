@@ -6,8 +6,23 @@
 	
 	include('query.php');
 	
+	if (isset($_GET['mode'])) 
+	{
+        $mode = $_GET['mode'];
+    } 
+	else 
+	{
+        $mode = "search";
+        echo "The 'mode' argument is missing. Possible are 'search', 'add_link' and 'worker'. Using default 'search' ...";
+    } 
+	
+	if ($mode == 'test') {
+		#include('initialize.php');
+	}
+	
 	$sql = "USE `dbps-web-crawler`;";
 	query($mysqli, $sql);
+	
 	echo "<hr><br>";
 	
 	include('crawler.php');
@@ -290,6 +305,7 @@
 			
 			if ($link_from != "")
 			{
+				delete_relation_link_refers_to_link_to_database($mysqli, $link_from, $link);
 				add_relation_link_refers_to_link_to_database($mysqli, $link_from, $link);
 			}
 			
@@ -327,7 +343,7 @@
 			
 			if ($links != false AND !empty($links))
 			{
-				// Delete Relations
+				delete_relations_link_refers_to_in_database($mysqli, $link);
 				
 				foreach ($links as $link)
 				{
@@ -384,22 +400,7 @@
 	<body>
 		<h1 style="text-decoration: underline; text-align: center;">Suchmaschine auf Basis von Webcrawler-Daten</h1>
 		
-<?php
-	#crawl($mysqli, 'http://www.dhbw-heidenheim.de', "", 1);
-	#crawl($mysqli, 'https://de.wikipedia.org/wiki/Rainer_Kuhlen', "", 1);
-	#crawl($mysqli, 'https://www.heidenheim.de', "", 1);
-	
-    if (isset($_GET['mode'])) {
-        $mode = $_GET['mode'];
-    } else {
-        $mode = "search";
-        echo "The 'mode' argument is missing. Possible are 'search', 'add_link' and 'worker'. Using default 'search' ...";
-    } 
-	
-	if ($mode == 'test') {
-		#include('initialize.php');
-	}
-	
+<?php	
 	if ($mode == 'search')
     {
 ?>
@@ -564,8 +565,10 @@
     }
     else if ($mode == "worker")
     {
-        while (true)
+		while (true)
 		{
+			
+			
 			$sql = "SELECT * FROM link ORDER BY id ASC;";
 			$result = $mysqli->query($sql);
 			
@@ -577,15 +580,18 @@
 					
 					if (check_if_link_is_up_to_date_in_database($mysqli, $link) == false)
 					{
+						echo "true - $link <br>";
 						crawl($mysqli, $link, "", 1);						
 					} 
 				}
 			}
+			
+			break;
 		}
     }
 	else if ($mode == "test")
     {
-        #crawl($mysqli, 'https://www.heidenheim.de', "", 2);
+        crawl($mysqli, 'https://www.heidenheim.de', "", 2);
 		#crawl($mysqli, 'http://www.dhbw-heidenheim.de', "", 21);
 		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Rainer_Kuhlen', "", 2);
 		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Haushund', "", 2);
