@@ -236,6 +236,23 @@
 		}
 	}
 	
+	function delete_relations_word_is_in_link_from_database($mysqli, $link)
+	{
+		$sql = "SELECT (SELECT id FROM link WHERE url = '$link') AS id_link;";
+		$result = $mysqli->query($sql);
+		
+		if ($result->num_rows == 1) 
+		{
+			while($row = $result->fetch_assoc()) 
+			{
+				$id_link = $row["id_link"];
+			}
+			
+			$sql = "DELETE FROM `word_is_in_link` WHERE id_link = $id_link;";
+			query($mysqli, $sql);
+		}
+	}
+	
 	function add_relation_word_is_stop_word_to_database($mysqli, $word)
 	{
 		$sql = "SELECT (SELECT id FROM word WHERE word = '$word') AS id_word, 
@@ -313,6 +330,8 @@
 			
 			if ($words != false AND !empty($words) AND $boolean_crawl == true)
 			{
+				delete_relations_word_is_in_link_from_database($mysqli, $link);
+				
 				foreach ($words as $word => $count)
 				{
 					if (strlen($word) <= 255)
@@ -341,7 +360,7 @@
 			
 			$links = crawler_get_links($crawler);
 			
-			if ($links != false AND !empty($links))
+			if ($links != false AND !empty($links) AND $boolean_crawl == true)
 			{
 				delete_relations_link_refers_to_in_database($mysqli, $link);
 				
@@ -351,6 +370,24 @@
 					{
 						add_relation_link_refers_to_link_to_database($mysqli, ($crawler->base), $link);
 					}
+					else
+					{
+						if(filter_var($link, FILTER_VALIDATE_URL) AND (str_starts_with($link, 'http://') OR str_starts_with($link, 'https://')))
+						{
+							$crawler_link = new Crawler($link);
+		
+							$title = crawler_get_title($crawler_link);
+							$title = str_replace("\"", "", $title);
+							$title = str_replace("'", "", $title);
+							
+							add_link_to_database($mysqli, $link, $title);
+						}
+						
+						if (check_if_link_is_in_database($mysqli, $link) == true)
+						{
+							add_relation_link_refers_to_link_to_database($mysqli, ($crawler->base), $link);
+						}
+					}					
 				}
 			}
 			
@@ -561,7 +598,51 @@
     }
 	else if ($mode == 'add_link')
     {
-        
+?>
+	<style>
+		#form {
+			text-align: center;
+			padding: 20px;
+			border: 2px solid black;
+			border-radius: 10px;
+			padding-left: 5%;
+			padding-right: 20%;
+			margin: 15px 5%;
+		}
+		
+		#link {
+			width: 60%;
+			padding: 5px 10px;
+			border: 1px solid gray;
+			border-radius: 3px;
+		}
+		
+		#submit {
+			width: 15%;
+			padding: 5px 10px;
+			border: 1px solid gray;
+			border-radius: 3px;
+		}
+	</style>
+	<form action="" method="POST" id="form" style="">
+		<input type="text" name="link" id="link" minlength="1">
+		&emsp;
+		<input type="submit" value="Hinzufügen" name="submit_add_link" id="submit">
+	</form>
+<?php
+		if (isset($_POST['submit_add_link']))
+		{
+			$link = $_POST['link'];
+			
+			if(filter_var($link, FILTER_VALIDATE_URL) AND (str_starts_with($link, 'http://') OR str_starts_with($link, 'https://')))
+			{
+				crawl($mysqli, $link, "", 0);
+			}
+			else 
+			{
+				echo "&rArr; Dies ist kein valider Link! Die URL muss als relativer Pfad mit dem Protokoll http oder https angegeben werden!";
+			}
+		}
     }
     else if ($mode == "worker")
     {
@@ -578,7 +659,6 @@
 					
 					if (check_if_link_is_up_to_date_in_database($mysqli, $link) == false)
 					{
-						echo "true - $link <br>";
 						crawl($mysqli, $link, "", 1);						
 					} 
 				}
