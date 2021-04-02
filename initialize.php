@@ -58,7 +58,7 @@
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 	query($mysqli, $sql);
 	
-	$sql = "DROP TABLE IF EXISTS `word_is_in_link`;;";
+	$sql = "DROP TABLE IF EXISTS `word_is_in_link`;";
 	query($mysqli, $sql);
 	
 	$sql = "CREATE TABLE IF NOT EXISTS `word_is_in_link` (
@@ -92,18 +92,20 @@
 	foreach (json_decode(file_get_contents("stopwords-de.json"), true) as $element)
 	{
 		$element = utf8_encode($element);
+		$element = str_replace("'", "''", $element);
 		
-		$sql = 'INSERT INTO `stop_word` (stop_word) SELECT "'.$element.'"
-				WHERE NOT EXISTS (SELECT * FROM stop_word WHERE stop_word = "'.$element.'");';
+		$sql = "INSERT INTO `stop_word` (stop_word) SELECT '".$element."'
+				WHERE NOT EXISTS (SELECT * FROM stop_word WHERE stop_word = '".$element."');";
 		query($mysqli, $sql);
 	}
 	
 	foreach (json_decode(file_get_contents("stopwords-en.json"), true) as $element)
 	{
 		$element = utf8_encode($element);
+		$element = str_replace("'", "''", $element);
 		
-		$sql = 'INSERT INTO `stop_word` (stop_word) SELECT "'.$element.'"
-				WHERE NOT EXISTS (SELECT * FROM stop_word WHERE stop_word = "'.$element.'");';
+		$sql = "INSERT INTO `stop_word` (stop_word) SELECT '".$element."'
+				WHERE NOT EXISTS (SELECT * FROM stop_word WHERE stop_word = '".$element."');";
 		query($mysqli, $sql);
 	}
 ?>

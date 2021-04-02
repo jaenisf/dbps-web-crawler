@@ -1,5 +1,5 @@
 <?php
-	set_time_limit(60*5);
+	set_time_limit(60*60);
 	#error_reporting(0);
 
 	include('connect.php');
@@ -170,7 +170,7 @@
 
 <?php
 	function crawl($mysqli, $link, $link_from, $maxDepth)
-	{
+	{		
 		if(filter_var($link, FILTER_VALIDATE_URL) AND (str_starts_with($link, 'http://') OR str_starts_with($link, 'https://')))
 		{
 			$crawler = new Crawler($link);
@@ -299,7 +299,7 @@
     } 
 	
 	if ($mode == 'test') {
-		include('initialize.php');
+		#include('initialize.php');
 	}
 	
 	$sql = "USE `dbps-web-crawler`;";
@@ -385,7 +385,33 @@
     }
 	else if ($mode == "test")
     {
-        crawl($mysqli, 'https://www.heidenheim.de', "", 1);
+        #crawl($mysqli, 'https://www.heidenheim.de', "", 1);
+		#crawl($mysqli, 'http://www.dhbw-heidenheim.de', "", 1);
+		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Rainer_Kuhlen', "", 1);
+		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Haushund', "", 1);
+		#crawl($mysqli, 'https://www.vdi.de', "", 1);
+		#crawl($mysqli, 'https://brockhaus.de/ecs/', "", 1);
+		#crawl($mysqli, 'https://op.europa.eu/de/web/eu-vocabularies/concept-scheme/-/resource?uri=http://eurovoc.europa.eu/100141', "", 1);
+		#crawl($mysqli, 'https://www.schwaebisch-schwaetza.de', "", 1);
+		#crawl($mysqli, 'https://www.slm.uni-hamburg.de/service/medienzentrum/links/linklisten.html', "", 1);
+		#crawl($mysqli, 'https://www.dwd.de', "", 1);
+		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Liste_der_Hochschulen_in_Deutschland', "", 1);
+		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Liste_der_St%C3%A4dte_in_Deutschland', "", 1);
+		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Liste_der_Staaten_der_Erde', "", 1);
+		#crawl($mysqli, 'https://www.landkreis-dillingen.de', "", 1);
+		#crawl($mysqli, 'https://www.spektrum.de', "", 1);
+		#crawl($mysqli, 'https://hpi.de', "", 1);
+		#crawl($mysqli, 'https://www.deutschlandfunk.de/forschung-aktuell.675.de.html', "", 1);
+		#crawl($mysqli, 'https://www.bpb.de', "", 1);
+		#crawl($mysqli, 'https://www.bundesregierung.de', "", 1);
+		#crawl($mysqli, 'https://www.hochschulverband.de', "", 1);
+		#crawl($mysqli, 'https://www.br.de', "", 1);
+		#crawl($mysqli, 'https://journalistikon.de/wissenschaftsjournalismus/', "", 1);
+		#crawl($mysqli, 'https://www.faz.net', "", 1);
+		#crawl($mysqli, 'https://www.tagesschau.de', "", 1);
+		#crawl($mysqli, 'https://www.voith.com', "", 1);
+		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Kategorie:Liste_(Fachsprache)', "", 1);
+		crawl($mysqli, 'https://de.wikipedia.org/wiki/Kategorie:Wikipedia:Liste', "", 1);
     }
     else
     {
