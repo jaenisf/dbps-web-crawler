@@ -659,6 +659,7 @@
 					
 					if (check_if_link_is_up_to_date_in_database($mysqli, $link) == false)
 					{
+						echo $link."<br>";
 						crawl($mysqli, $link, "", 1);						
 					} 
 				}
