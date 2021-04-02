@@ -81,6 +81,42 @@
 		}
 	}
 	
+	function delete_relation_link_refers_to_link_to_database($mysqli, $link_from, $link_to)
+	{
+		$sql = "SELECT (SELECT id FROM link WHERE url = '$link_from') AS id_link_from,
+					   (SELECT id FROM link WHERE url = '$link_to') AS id_link_to;";
+		$result = $mysqli->query($sql);
+		
+		if ($result->num_rows == 1) 
+		{
+			while($row = $result->fetch_assoc()) 
+			{
+				$id_link_from = $row["id_link_from"];
+				$id_link_to = $row["id_link_to"];
+			}
+			
+			$sql = "DELETE FROM `link_refers_to_link` WHERE id_link_from = $id_link_from AND id_link_to = $id_link_to;";
+			query($mysqli, $sql);
+		}
+	}
+	
+	function delete_relations_link_refers_to_in_database($mysqli, $link_from)
+	{
+		$sql = "SELECT (SELECT id FROM link WHERE url = '$link_from') AS id_link_from;";
+		$result = $mysqli->query($sql);
+		
+		if ($result->num_rows == 1) 
+		{
+			while($row = $result->fetch_assoc()) 
+			{
+				$id_link_from = $row["id_link_from"];
+			}
+			
+			$sql = "DELETE FROM `link_refers_to_link` WHERE id_link_from = $id_link_from;";
+			query($mysqli, $sql);
+		}
+	}
+	
 	function check_if_word_is_in_database($mysqli, $word)
 	{
 		$sql = "SELECT * FROM `word` WHERE word = '$word';";
@@ -117,6 +153,36 @@
 		}
 	}
 	
+	function check_if_relation_word_is_in_link_is_in_database($mysqli, $link, $word)
+	{
+		$sql = "SELECT (SELECT id AS id_word FROM word WHERE word = '$word') AS id_word,
+					   (SELECT id FROM link WHERE url = '$link') AS id_link;";
+		$result = $mysqli->query($sql);
+		
+		if ($result->num_rows == 1) 
+		{
+			while($row = $result->fetch_assoc()) 
+			{
+				$id_word = $row["id_word"];
+				$id_link = $row["id_link"];
+			}
+			
+			$sql = "SELECT * FROM `word_is_in_link` WHERE id_word = '$id_word' AND id_link = '$id_link';";
+			$result = $mysqli->query($sql);
+
+			if ($result->num_rows > 0) 
+			{
+				return true;		
+			} 
+			else 
+			{
+				return false;
+			}
+		}
+		
+		return false;
+	}
+	
 	function add_relation_word_is_in_link_to_database($mysqli, $link, $word, $count)
 	{
 		$sql = "SELECT (SELECT id AS id_word FROM word WHERE word = '$word') AS id_word,
@@ -132,6 +198,25 @@
 			}
 			
 			$sql = "INSERT INTO `word_is_in_link` (id_word, id_link, count) VALUES ($id_word, $id_link, $count);";
+			query($mysqli, $sql);
+		}
+	}
+	
+	function update_relation_word_is_in_link_to_database($mysqli, $link, $word, $count)
+	{
+		$sql = "SELECT (SELECT id AS id_word FROM word WHERE word = '$word') AS id_word,
+					   (SELECT id FROM link WHERE url = '$link') AS id_link;";
+		$result = $mysqli->query($sql);
+		
+		if ($result->num_rows == 1) 
+		{
+			while($row = $result->fetch_assoc()) 
+			{
+				$id_word = $row["id_word"];
+				$id_link = $row["id_link"];
+			}
+			
+			$sql = "UPDATE `word_is_in_link` SET count = $count WHERE id_word = $id_word AND id_link = $id_link;";
 			query($mysqli, $sql);
 		}
 	}
@@ -214,19 +299,26 @@
 			{
 				foreach ($words as $word => $count)
 				{
-					if (check_if_word_is_in_database($mysqli, $word) == false AND strlen($word) <= 255)
-					{
-						add_word_to_database($mysqli, $word);
-						
-						if (check_if_stop_word_is_in_database($mysqli, $word) == true)
-						{
-							add_relation_word_is_stop_word_to_database($mysqli, $word);
-						}
-					}
-					
 					if (strlen($word) <= 255)
 					{
-						add_relation_word_is_in_link_to_database($mysqli, $link, $word, $count);
+						if (check_if_word_is_in_database($mysqli, $word) == false)
+						{
+							add_word_to_database($mysqli, $word);
+							
+							if (check_if_stop_word_is_in_database($mysqli, $word) == true)
+							{
+								add_relation_word_is_stop_word_to_database($mysqli, $word);
+							}
+						}
+					
+						if (check_if_relation_word_is_in_link_is_in_database($mysqli, $link, $word) == false)
+						{
+							add_relation_word_is_in_link_to_database($mysqli, $link, $word, $count);
+						}
+						else
+						{
+							update_relation_word_is_in_link_to_database($mysqli, $link, $word, $count);
+						}
 					}
 				}
 			}
@@ -235,6 +327,8 @@
 			
 			if ($links != false AND !empty($links))
 			{
+				// Delete Relations
+				
 				foreach ($links as $link)
 				{
 					if (check_if_link_is_in_database($mysqli, $link) == true)
@@ -246,7 +340,7 @@
 			
 			echo "<hr>";
 			
-			if ($maxDepth >= 0 AND $boolean_crawl == true AND $links != false AND !empty($links))
+			if ($maxDepth > 0 AND $boolean_crawl == true AND $links != false AND !empty($links))
 			{				
 				foreach ($links as $link)
 				{				
@@ -470,37 +564,54 @@
     }
     else if ($mode == "worker")
     {
-        
+        while (true)
+		{
+			$sql = "SELECT * FROM link ORDER BY id ASC;";
+			$result = $mysqli->query($sql);
+			
+			if ($result->num_rows > 0) 
+			{
+				while($row = $result->fetch_assoc()) 
+				{
+					$link = $row["url"];
+					
+					if (check_if_link_is_up_to_date_in_database($mysqli, $link) == false)
+					{
+						crawl($mysqli, $link, "", 1);						
+					} 
+				}
+			}
+		}
     }
 	else if ($mode == "test")
     {
-        #crawl($mysqli, 'https://www.heidenheim.de', "", 1);
-		#crawl($mysqli, 'http://www.dhbw-heidenheim.de', "", 1);
-		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Rainer_Kuhlen', "", 1);
-		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Haushund', "", 1);
-		#crawl($mysqli, 'https://www.vdi.de', "", 1);
-		#crawl($mysqli, 'https://brockhaus.de/ecs/', "", 1);
-		#crawl($mysqli, 'https://op.europa.eu/de/web/eu-vocabularies/concept-scheme/-/resource?uri=http://eurovoc.europa.eu/100141', "", 1);
-		#crawl($mysqli, 'https://www.schwaebisch-schwaetza.de', "", 1);
-		#crawl($mysqli, 'https://www.slm.uni-hamburg.de/service/medienzentrum/links/linklisten.html', "", 1);
-		#crawl($mysqli, 'https://www.dwd.de', "", 1);
-		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Liste_der_Hochschulen_in_Deutschland', "", 1);
-		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Liste_der_St%C3%A4dte_in_Deutschland', "", 1);
-		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Liste_der_Staaten_der_Erde', "", 1);
-		#crawl($mysqli, 'https://www.landkreis-dillingen.de', "", 1);
-		#crawl($mysqli, 'https://www.spektrum.de', "", 1);
-		#crawl($mysqli, 'https://hpi.de', "", 1);
-		#crawl($mysqli, 'https://www.deutschlandfunk.de/forschung-aktuell.675.de.html', "", 1);
-		#crawl($mysqli, 'https://www.bpb.de', "", 1);
-		#crawl($mysqli, 'https://www.bundesregierung.de', "", 1);
-		#crawl($mysqli, 'https://www.hochschulverband.de', "", 1);
-		#crawl($mysqli, 'https://www.br.de', "", 1);
-		#crawl($mysqli, 'https://journalistikon.de/wissenschaftsjournalismus/', "", 1);
-		#crawl($mysqli, 'https://www.faz.net', "", 1);
-		#crawl($mysqli, 'https://www.tagesschau.de', "", 1);
-		#crawl($mysqli, 'https://www.voith.com', "", 1);
-		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Kategorie:Liste_(Fachsprache)', "", 1);
-		crawl($mysqli, 'https://de.wikipedia.org/wiki/Kategorie:Wikipedia:Liste', "", 1);
+        #crawl($mysqli, 'https://www.heidenheim.de', "", 2);
+		#crawl($mysqli, 'http://www.dhbw-heidenheim.de', "", 21);
+		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Rainer_Kuhlen', "", 2);
+		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Haushund', "", 2);
+		#crawl($mysqli, 'https://www.vdi.de', "", 2);
+		#crawl($mysqli, 'https://brockhaus.de/ecs/', "", 2);
+		#crawl($mysqli, 'https://op.europa.eu/de/web/eu-vocabularies/concept-scheme/-/resource?uri=http://eurovoc.europa.eu/100141', "", 2);
+		#crawl($mysqli, 'https://www.schwaebisch-schwaetza.de', "", 2);
+		#crawl($mysqli, 'https://www.slm.uni-hamburg.de/service/medienzentrum/links/linklisten.html', "", 2);
+		#crawl($mysqli, 'https://www.dwd.de', "", 2);
+		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Liste_der_Hochschulen_in_Deutschland', "", 2);
+		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Liste_der_St%C3%A4dte_in_Deutschland', "", 2);
+		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Liste_der_Staaten_der_Erde', "", 2);
+		#crawl($mysqli, 'https://www.landkreis-dillingen.de', "", 2);
+		#crawl($mysqli, 'https://www.spektrum.de', "", 2);
+		#crawl($mysqli, 'https://hpi.de', "", 2);
+		#crawl($mysqli, 'https://www.deutschlandfunk.de/forschung-aktuell.675.de.html', "", 2);
+		#crawl($mysqli, 'https://www.bpb.de', "", 2);
+		#crawl($mysqli, 'https://www.bundesregierung.de', "", 2);
+		#crawl($mysqli, 'https://www.hochschulverband.de', "", 2);
+		#crawl($mysqli, 'https://www.br.de', "", 2);
+		#crawl($mysqli, 'https://journalistikon.de/wissenschaftsjournalismus/', "", 2);
+		#crawl($mysqli, 'https://www.faz.net', "", 2);
+		#crawl($mysqli, 'https://www.tagesschau.de', "", 2);
+		#crawl($mysqli, 'https://www.voith.com', "", 2);
+		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Kategorie:Liste_(Fachsprache)', "", 2);
+		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Kategorie:Wikipedia:Liste', "", 2);
     }
     else
     {

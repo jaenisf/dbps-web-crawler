@@ -10,9 +10,9 @@
 		} 
 		else
 		{
-			echo "Query: " . $sql . "\n";
-			echo "<b style='color: red;'><i>Errno: " . $mysqli->errno . "</i></b>\n";
-			echo "<b style='color: red;'><i>Error: " . $mysqli->error . "</i></b>\n";
+			echo "Query: " . $sql . "<br>";
+			echo "<b style='color: red;'><i>Errno: " . $mysqli->errno . "</i></b><br>";
+			echo "<b style='color: red;'><i>Error: " . $mysqli->error . "</i></b><br>";
 			exit;
 		}
 		
