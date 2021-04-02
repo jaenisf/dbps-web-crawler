@@ -567,8 +567,6 @@
     {
 		while (true)
 		{
-			
-			
 			$sql = "SELECT * FROM link ORDER BY id ASC;";
 			$result = $mysqli->query($sql);
 			
@@ -585,8 +583,6 @@
 					} 
 				}
 			}
-			
-			break;
 		}
     }
 	else if ($mode == "test")
