@@ -342,108 +342,125 @@
 <?php
 		if (isset($_POST['submit_search']))
 		{
+			echo "<br><hr><br>";
+			
 			if(trim($_POST['search']) != "")
 			{
 				$search_words = htmlspecialchars($_POST['search']); // Freie Stellen Feuerwehr Heidenheim
 				$search_words = text_to_words_array_with_count($search_words);
 				
-				echo "<br><hr><br>";
-				
-				$info =  "<b style='font-size: 15pt;'>Suchwörter:&ensp;";
+				$info =  "<b style='font-size: 15pt;'>Suchwörter (ohne Stoppwörter):&ensp;";
 				
 				foreach ($search_words as $word => $count)
 				{
-					$info = $info.'"'.$word.'",&ensp;';
+					$sql = "SELECT * FROM stop_word WHERE stop_word = '$word';";
+					$result = $mysqli->query($sql);
+
+					if ($result->num_rows > 0) 
+					{
+						unset($search_words[$word]);
+					}
+					else
+					{
+						$info = $info.'"'.$word.'",&ensp;';
+					}
 				}
 				
 				$info = substr($info, 0, strlen($info) - 7);
 				
-				echo $info."</b><br><br>";
-				
-				$sql = "SELECT *, 
-							   COUNT(count) AS anzahl_verschiedene_woerter, 
-							   SUM(count) AS anzahl_vorkommen_suchwoerter
-						FROM word
-						LEFT JOIN word_is_in_link ON word.id = word_is_in_link.id_word
-						LEFT JOIN link ON word_is_in_link.id_link = link.id
-						WHERE ";
-						
-				$sql_count = "SELECT COUNT(*) OVER () AS count FROM word
-							  LEFT JOIN word_is_in_link ON word.id = word_is_in_link.id_word
-							  LEFT JOIN link ON word_is_in_link.id_link = link.id
-							  WHERE ";
-				
-				foreach ($search_words as $word => $count)
+				if (empty($search_words) == false)
 				{
-					$sql = $sql."word LIKE '%$word%' OR ";
-					$sql_count = $sql_count."word LIKE '%$word%' OR ";
-				}
-				
-				$sql = substr($sql, 0, strlen($sql) - 3);
-				$sql_count = substr($sql_count, 0, strlen($sql_count) - 3);
-				
-				$sql = $sql."GROUP BY id_link 
-							 ORDER BY anzahl_verschiedene_woerter DESC, 
-								  anzahl_vorkommen_suchwoerter DESC
-							 LIMIT 20;";
-							 
-				$sql_count = $sql_count."GROUP BY id_link LIMIT 1;";
-						
-				$result = $mysqli->query($sql_count);
-		
-				if ($result->num_rows > 0) 
-				{
-					while($row = $result->fetch_assoc()) 
+					echo $info."</b><br><br>";
+					
+					$sql = "SELECT *, 
+								   COUNT(count) AS anzahl_verschiedene_woerter, 
+								   SUM(count) AS anzahl_vorkommen_suchwoerter
+							FROM word
+							LEFT JOIN word_is_in_link ON word.id = word_is_in_link.id_word
+							LEFT JOIN link ON word_is_in_link.id_link = link.id
+							WHERE ";
+							
+					$sql_count = "SELECT COUNT(*) OVER () AS count FROM word
+								  LEFT JOIN word_is_in_link ON word.id = word_is_in_link.id_word
+								  LEFT JOIN link ON word_is_in_link.id_link = link.id
+								  WHERE ";
+					
+					foreach ($search_words as $word => $count)
 					{
-						$count = $row["count"];
-					}
-				}
-				
-				$start = microtime(true); 
-				
-				$result = $mysqli->query($sql);
-				
-				$end = microtime(true);
-				
-				$time = $end - $start;
-				
-				echo "Ungefähr ".$count." Ergebnisse (".$time." Sekunden) <br><br>";
-							   
-				if (empty($result)) echo $mysqli->error;
-
-				if ($result->num_rows > 0) 
-				{
-					if ($result->num_rows == 20) 
-					{
-						echo "<b style='font-size: 15pt;'>&rArr; Top 20 Suchergebnisse</b><br><ul>";
-					}
-					else 
-					{
-						echo "<b style='font-size: 15pt;'>&rArr; ".($result->num_rows)." Suchergebnisse</b><br><ul>";
+						$sql = $sql."word LIKE '%$word%' OR ";
+						$sql_count = $sql_count."word LIKE '%$word%' OR ";
 					}
 					
-					while($row = $result->fetch_assoc()) 
+					$sql = substr($sql, 0, strlen($sql) - 3);
+					$sql_count = substr($sql_count, 0, strlen($sql_count) - 3);
+					
+					$sql = $sql."GROUP BY id_link 
+								 ORDER BY anzahl_verschiedene_woerter DESC, 
+									  anzahl_vorkommen_suchwoerter DESC
+								 LIMIT 20;";
+								 
+					$sql_count = $sql_count."GROUP BY id_link LIMIT 1;";
+							
+					$result = $mysqli->query($sql_count);
+			
+					if ($result->num_rows > 0) 
 					{
-						$url = $row["url"];
-						$title = $row["title"];
-						
-						if ($row["title"] != "")
+						while($row = $result->fetch_assoc()) 
 						{
-							$title = "(".$title.")";
+							$count = $row["count"];
+						}
+					}
+					
+					$start = microtime(true); 
+					
+					$result = $mysqli->query($sql);
+					
+					$end = microtime(true);
+					
+					$time = $end - $start;
+					
+					echo "Ungefähr ".$count." Ergebnisse (".$time." Sekunden) <br><br>";
+								   
+					if (empty($result)) echo $mysqli->error;
+
+					if ($result->num_rows > 0) 
+					{
+						if ($result->num_rows == 20) 
+						{
+							echo "<b style='font-size: 15pt;'>&rArr; Top 20 Suchergebnisse</b><br><ul>";
+						}
+						else 
+						{
+							echo "<b style='font-size: 15pt;'>&rArr; ".($result->num_rows)." Suchergebnisse</b><br><ul>";
 						}
 						
-						echo $url = "<li style='padding: 5px;'>
-										<a href='".$url."' style='color: #00B2C3;'>".$url."</a>
-										".$title."
-									</li>";
+						while($row = $result->fetch_assoc()) 
+						{
+							$url = $row["url"];
+							$title = $row["title"];
+							
+							if ($row["title"] != "")
+							{
+								$title = "(".$title.")";
+							}
+							
+							echo $url = "<li style='padding: 5px;'>
+											<a href='".$url."' style='color: #00B2C3;'>".$url."</a>
+											&ensp;".$title."
+										</li>";
+						}
+						
+						echo "</ul>";
 					}
-					
-					echo "</ul>";
-				} 
+				}
 				else 
 				{
-					echo "&rArr; Es konnten keine Suchergebnisse gefunden werden!";
+					echo "&rArr; Dies ist keine sinnvolle Suchanfrage!<br>";
 				}
+			} 
+			else 
+			{
+				echo "&rArr; Dies ist keine sinnvolle Suchanfrage!<br>";
 			}
 		}
     }

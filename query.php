@@ -6,13 +6,13 @@
 		
 		if ($mysqli->query($sql)) 
 		{
-			echo "Query: $sql <br> --> Successfully processed!<br>";
+			echo "Query: $sql <br> &rArr; <b style='color: green;'><i>Successfully processed!</i></b><br>";
 		} 
 		else
 		{
 			echo "Query: " . $sql . "\n";
-			echo "Errno: " . $mysqli->errno . "\n";
-			echo "Error: " . $mysqli->error . "\n";
+			echo "<b style='color: red;'><i>Errno: " . $mysqli->errno . "</i></b>\n";
+			echo "<b style='color: red;'><i>Error: " . $mysqli->error . "</i></b>\n";
 			exit;
 		}
 		
