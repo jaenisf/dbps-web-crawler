@@ -17,7 +17,7 @@
     } 
 	
 	if ($mode == 'test') {
-		#include('initialize.php');
+		//include('initialize.php');
 	}
 	
 	$sql = "USE `dbps-web-crawler`;";
@@ -62,6 +62,12 @@
 	function add_link_to_database($mysqli, $link, $title)
 	{
 		$sql = "INSERT INTO `link` (url, time_stamp, title) VALUES ('$link', (SELECT CURRENT_TIMESTAMP), '$title');";
+		query($mysqli, $sql);
+	}
+	
+	function add_link_without_crawling_to_database($mysqli, $link, $title)
+	{
+		$sql = "INSERT INTO `link` (url, time_stamp, title) VALUES ('$link', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 24 HOUR), '$title');";
 		query($mysqli, $sql);
 	}
 	
@@ -380,7 +386,7 @@
 							$title = str_replace("\"", "", $title);
 							$title = str_replace("'", "", $title);
 							
-							add_link_to_database($mysqli, $link, $title);
+							add_link_without_crawling_to_database($mysqli, $link, $title);
 						}
 						
 						if (check_if_link_is_in_database($mysqli, $link) == true)
@@ -660,7 +666,7 @@
 					if (check_if_link_is_up_to_date_in_database($mysqli, $link) == false)
 					{
 						echo "UPDATE LINK IN DATABASE WITH CRAWLING: ".$link."<br><br>";
-						crawl($mysqli, $link, "", 1);						
+						crawl($mysqli, $link, "", 0);						
 					} 
 				}
 			}
