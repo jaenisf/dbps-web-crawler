@@ -50,6 +50,10 @@
 	{				
 		echo $link."<br>";
 		
+		echo string(filter_var($link, FILTER_VALIDATE_URL));
+		echo string(str_starts_with($link, 'http://'));
+		echo string(str_starts_with($link, 'https://'));
+		
 		if(filter_var($link, FILTER_VALIDATE_URL) AND (str_starts_with($link, 'http://') OR str_starts_with($link, 'https://')))
 		{
 			// crawl link
