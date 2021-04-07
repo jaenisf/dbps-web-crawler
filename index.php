@@ -1,6 +1,4 @@
 <?php
-	echo 'Die aktuelle PHP Version ist ' . phpversion();
-
 	// set time limit to one hour
 	set_time_limit(60*60);
 	
