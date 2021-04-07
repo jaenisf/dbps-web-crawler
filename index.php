@@ -4,6 +4,7 @@
 	
 	// set error reporting to 0
 	//error_reporting(0);
+	error_reporting(E_ALL);
 
 	// connect to the database
 	include('connect.php');
@@ -47,7 +48,7 @@
 	// function to crawl a link
 	function crawl($mysqli, $link, $link_from, $maxDepth)
 	{				
-		echo (filter_var($link, FILTER_VALIDATE_URL) AND (str_starts_with($link, 'http://') OR str_starts_with($link, 'https://')));
+		echo $link."<br>";
 		
 		if(filter_var($link, FILTER_VALIDATE_URL) AND (str_starts_with($link, 'http://') OR str_starts_with($link, 'https://')))
 		{
