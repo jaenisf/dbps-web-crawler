@@ -16,7 +16,7 @@
 	
 	$sql = "CREATE TABLE IF NOT EXISTS `link` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT,
-			  `url` VARCHAR2(200) DEFAULT NULL,
+			  `url` mediumtext DEFAULT NULL,
 			  `time_stamp` timestamp NULL DEFAULT NULL,
 			  `title` char(255) DEFAULT NULL,
 			  `page_rank` float DEFAULT NULL,
