@@ -439,7 +439,7 @@
 	else if ($mode == "test")
     {
         crawl($mysqli, 'https://www.heidenheim.de', "", 2);
-		crawl($mysqli, 'https://www.dhbw-heidenheim.de', "", 21);
+		#crawl($mysqli, 'https://www.dhbw-heidenheim.de', "", 21);
 		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Rainer_Kuhlen', "", 2);
 		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Haushund', "", 2);
 		#crawl($mysqli, 'https://www.vdi.de', "", 2);
