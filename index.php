@@ -4,7 +4,6 @@
 	
 	// set error reporting to 0
 	//error_reporting(0);
-	error_reporting(E_ALL);
 
 	// connect to the database
 	include('connect.php');
@@ -50,7 +49,15 @@
 	{				
 		echo $link."<br>";
 		
-		var_dump(filter_var($link, FILTER_VALIDATE_URL));
+		if(filter_var($link, FILTER_VALIDATE_URL))
+		{
+			echo "test1";
+		}
+		
+		if(str_starts_with($link, 'https://'))
+		{
+			echo "test2";
+		}
 		
 		if(filter_var($link, FILTER_VALIDATE_URL) AND (str_starts_with($link, 'http://') OR str_starts_with($link, 'https://')))
 		{
