@@ -1,13 +1,16 @@
 <?php
+	// create database
 	$sql = "DROP DATABASE IF EXISTS `dbps-web-crawler`;";
 	query($mysqli, $sql);
-	
+
 	$sql = "CREATE DATABASE IF NOT EXISTS `dbps-web-crawler` /*!40100 DEFAULT CHARACTER SET utf8 */;";
 	query($mysqli, $sql);
 	
+	// select database
 	$sql = "USE `dbps-web-crawler`;";
 	query($mysqli, $sql);
 	
+	// create table link
 	$sql = "DROP TABLE IF EXISTS `link`;";
 	query($mysqli, $sql);
 	
@@ -17,10 +20,12 @@
 			  `time_stamp` timestamp NULL DEFAULT NULL,
 			  `title` char(255) DEFAULT NULL,
 			  `page_rank` float DEFAULT NULL,
-			  PRIMARY KEY (`id`)
+			  PRIMARY KEY (`id`),
+			  UNIQUE INDEX `url` (`url`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 	query($mysqli, $sql);
 	
+	// create table link_refers_to_link
 	$sql = "DROP TABLE IF EXISTS `link_refers_to_link`;";
 	query($mysqli, $sql);
 	
@@ -36,6 +41,7 @@
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 	query($mysqli, $sql);
 	
+	// create table stop_word
 	$sql = "DROP TABLE IF EXISTS `stop_word`;";
 	query($mysqli, $sql);
 	
@@ -47,6 +53,7 @@
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 	query($mysqli, $sql);
 	
+	// create table word
 	$sql = "DROP TABLE IF EXISTS `word`;";
 	query($mysqli, $sql);
 	
@@ -58,6 +65,7 @@
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 	query($mysqli, $sql);
 	
+	// create table word_is_in_link
 	$sql = "DROP TABLE IF EXISTS `word_is_in_link`;";
 	query($mysqli, $sql);
 	
@@ -74,6 +82,7 @@
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 	query($mysqli, $sql);
 	
+	// create table word_is_stop_word
 	$sql = "DROP TABLE IF EXISTS `word_is_stop_word`;";
 	query($mysqli, $sql);
 	
@@ -89,6 +98,7 @@
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 	query($mysqli, $sql);
 	
+	// insert german stop words
 	foreach (json_decode(file_get_contents("stopwords-de.json"), true) as $element)
 	{
 		$element = utf8_encode($element);
@@ -99,6 +109,7 @@
 		query($mysqli, $sql);
 	}
 	
+	// insert english stop words
 	foreach (json_decode(file_get_contents("stopwords-en.json"), true) as $element)
 	{
 		$element = utf8_encode($element);

@@ -13,7 +13,7 @@
 			echo "Query: " . $sql . "<br>";
 			echo "<b style='color: red;'><i>Errno: " . $mysqli->errno . "</i></b><br>";
 			echo "<b style='color: red;'><i>Error: " . $mysqli->error . "</i></b><br>";
-			exit;
+			//exit;
 		}
 		
 		echo "<br>";

@@ -1,11 +1,17 @@
 <?php
+	// set time limit to one hour
 	set_time_limit(60*60);
-	#error_reporting(0);
+	
+	// set error reporting to 0
+	error_reporting(0);
 
+	// connect to the database
 	include('connect.php');
 	
+	// include function for sql query
 	include('query.php');
 	
+	// read get variable mode
 	if (isset($_GET['mode'])) 
 	{
         $mode = $_GET['mode'];
@@ -16,290 +22,34 @@
         echo "The 'mode' argument is missing. Possible are 'search', 'add_link' and 'worker'. Using default 'search' ...";
     } 
 	
+	// if mode is test then initialize the database
 	if ($mode == 'test') {
-		//include('initialize.php');
+		include('initialize.php');
 	}
 	
+	// select the database
 	$sql = "USE `dbps-web-crawler`;";
 	query($mysqli, $sql);
 	
 	echo "<hr><br>";
 	
+	// include class web crawler
 	include('crawler.php');
 	
+	// include the function the extract the words from a text
 	include('text-to-words-function.php');
 	
-	function check_if_link_is_in_database($mysqli, $link)
-	{
-		$sql = "SELECT * FROM `link` WHERE url = '$link';";
-		$result = $mysqli->query($sql);
-
-		if ($result->num_rows > 0) 
-		{
-			return true;		
-		} 
-		else 
-		{
-			return false;
-		}
-	}
-	
-	function check_if_link_is_up_to_date_in_database($mysqli, $link)
-	{
-		$sql = "SELECT * FROM `link` WHERE url = '$link' AND time_stamp > TIMESTAMP(DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 24 HOUR));";
-		$result = $mysqli->query($sql);
-
-		if ($result->num_rows > 0) 
-		{
-			return true;		
-		} 
-		else 
-		{
-			return false;
-		}
-	}
-	
-	function add_link_to_database($mysqli, $link, $title)
-	{
-		$sql = "INSERT INTO `link` (url, time_stamp, title) VALUES ('$link', (SELECT CURRENT_TIMESTAMP), '$title');";
-		query($mysqli, $sql);
-	}
-	
-	function add_link_without_crawling_to_database($mysqli, $link, $title)
-	{
-		$sql = "INSERT INTO `link` (url, time_stamp, title) VALUES ('$link', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 24 HOUR), '$title');";
-		query($mysqli, $sql);
-	}
-	
-	function update_link_in_database($mysqli, $link, $title)
-	{
-		$sql = "UPDATE `link` SET time_stamp = CURRENT_TIMESTAMP, title = '$title' WHERE url = '$link';";
-		query($mysqli, $sql);
-	}
-	
-	function add_relation_link_refers_to_link_to_database($mysqli, $link_from, $link_to)
-	{
-		$sql = "SELECT (SELECT id FROM link WHERE url = '$link_from') AS id_link_from,
-					   (SELECT id FROM link WHERE url = '$link_to') AS id_link_to;";
-		$result = $mysqli->query($sql);
-		
-		if ($result->num_rows == 1) 
-		{
-			while($row = $result->fetch_assoc()) 
-			{
-				$id_link_from = $row["id_link_from"];
-				$id_link_to = $row["id_link_to"];
-			}
-			
-			$sql = "SELECT * FROM `link_refers_to_link` WHERE id_link_from = '$id_link_from' AND id_link_to = '$id_link_to';";
-			$result = $mysqli->query($sql);
-			
-			if ($result->num_rows == 0) 
-			{
-				$sql = "INSERT INTO `link_refers_to_link` (id_link_from, id_link_to) VALUES ($id_link_from, $id_link_to);";
-				query($mysqli, $sql);
-			}
-		}
-	}
-	
-	function delete_relation_link_refers_to_link_to_database($mysqli, $link_from, $link_to)
-	{
-		$sql = "SELECT (SELECT id FROM link WHERE url = '$link_from') AS id_link_from,
-					   (SELECT id FROM link WHERE url = '$link_to') AS id_link_to;";
-		$result = $mysqli->query($sql);
-		
-		if ($result->num_rows == 1) 
-		{
-			while($row = $result->fetch_assoc()) 
-			{
-				$id_link_from = $row["id_link_from"];
-				$id_link_to = $row["id_link_to"];
-			}
-			
-			$sql = "DELETE FROM `link_refers_to_link` WHERE id_link_from = $id_link_from AND id_link_to = $id_link_to;";
-			query($mysqli, $sql);
-		}
-	}
-	
-	function delete_relations_link_refers_to_in_database($mysqli, $link_from)
-	{
-		$sql = "SELECT (SELECT id FROM link WHERE url = '$link_from') AS id_link_from;";
-		$result = $mysqli->query($sql);
-		
-		if ($result->num_rows == 1) 
-		{
-			while($row = $result->fetch_assoc()) 
-			{
-				$id_link_from = $row["id_link_from"];
-			}
-			
-			$sql = "DELETE FROM `link_refers_to_link` WHERE id_link_from = $id_link_from;";
-			query($mysqli, $sql);
-		}
-	}
-	
-	function check_if_word_is_in_database($mysqli, $word)
-	{
-		$sql = "SELECT * FROM `word` WHERE word = '$word';";
-		$result = $mysqli->query($sql);
-
-		if ($result->num_rows > 0) 
-		{
-			return true;		
-		} 
-		else 
-		{
-			return false;
-		}
-	}
-	
-	function add_word_to_database($mysqli, $word)
-	{
-		$sql = "INSERT INTO `word` (word) VALUES ('$word');";
-		query($mysqli, $sql);
-	}
-	
-	function check_if_stop_word_is_in_database($mysqli, $word)
-	{
-		$sql = "SELECT * FROM `stop_word` WHERE stop_word = '$word';";
-		$result = $mysqli->query($sql);
-
-		if ($result->num_rows > 0) 
-		{
-			return true;		
-		} 
-		else 
-		{
-			return false;
-		}
-	}
-	
-	function check_if_relation_word_is_in_link_is_in_database($mysqli, $link, $word)
-	{
-		$sql = "SELECT (SELECT id AS id_word FROM word WHERE word = '$word') AS id_word,
-					   (SELECT id FROM link WHERE url = '$link') AS id_link;";
-		$result = $mysqli->query($sql);
-		
-		if ($result->num_rows == 1) 
-		{
-			while($row = $result->fetch_assoc()) 
-			{
-				$id_word = $row["id_word"];
-				$id_link = $row["id_link"];
-			}
-			
-			$sql = "SELECT * FROM `word_is_in_link` WHERE id_word = '$id_word' AND id_link = '$id_link';";
-			$result = $mysqli->query($sql);
-
-			if ($result->num_rows > 0) 
-			{
-				return true;		
-			} 
-			else 
-			{
-				return false;
-			}
-		}
-		
-		return false;
-	}
-	
-	function add_relation_word_is_in_link_to_database($mysqli, $link, $word, $count)
-	{
-		$sql = "SELECT (SELECT id AS id_word FROM word WHERE word = '$word') AS id_word,
-					   (SELECT id FROM link WHERE url = '$link') AS id_link;";
-		$result = $mysqli->query($sql);
-		
-		if ($result->num_rows == 1) 
-		{
-			while($row = $result->fetch_assoc()) 
-			{
-				$id_word = $row["id_word"];
-				$id_link = $row["id_link"];
-			}
-			
-			$sql = "INSERT INTO `word_is_in_link` (id_word, id_link, count) VALUES ($id_word, $id_link, $count);";
-			query($mysqli, $sql);
-		}
-	}
-	
-	function update_relation_word_is_in_link_to_database($mysqli, $link, $word, $count)
-	{
-		$sql = "SELECT (SELECT id AS id_word FROM word WHERE word = '$word') AS id_word,
-					   (SELECT id FROM link WHERE url = '$link') AS id_link;";
-		$result = $mysqli->query($sql);
-		
-		if ($result->num_rows == 1) 
-		{
-			while($row = $result->fetch_assoc()) 
-			{
-				$id_word = $row["id_word"];
-				$id_link = $row["id_link"];
-			}
-			
-			$sql = "UPDATE `word_is_in_link` SET count = $count WHERE id_word = $id_word AND id_link = $id_link;";
-			query($mysqli, $sql);
-		}
-	}
-	
-	function delete_relations_word_is_in_link_from_database($mysqli, $link)
-	{
-		$sql = "SELECT (SELECT id FROM link WHERE url = '$link') AS id_link;";
-		$result = $mysqli->query($sql);
-		
-		if ($result->num_rows == 1) 
-		{
-			while($row = $result->fetch_assoc()) 
-			{
-				$id_link = $row["id_link"];
-			}
-			
-			$sql = "DELETE FROM `word_is_in_link` WHERE id_link = $id_link;";
-			query($mysqli, $sql);
-		}
-	}
-	
-	function add_relation_word_is_stop_word_to_database($mysqli, $word)
-	{
-		$sql = "SELECT (SELECT id FROM word WHERE word = '$word') AS id_word, 
-					   (SELECT id AS id_stop_word FROM stop_word WHERE stop_word = '$word') AS id_stop_word;";
-		$result = $mysqli->query($sql);
-
-		if ($result->num_rows == 1) 
-		{
-			while($row = $result->fetch_assoc()) 
-			{
-				$id_word = $row["id_word"];
-				$id_stop_word = $row["id_stop_word"];
-			}
-			
-			$sql = "INSERT INTO `word_is_stop_word` (id_word, id_stop_word) VALUES ($id_word, $id_stop_word);";
-			query($mysqli, $sql);
-		}
-	}
-	
-	function crawler_get_links($crawler)
-	{
-		return $links = $crawler->get('links');
-	}
-	
-	function crawler_get_title($crawler)
-	{
-		$titles = $crawler->get('titles');
-		return !empty($titles) ? $titles[0] : "";
-	}
-	
-	function crawler_get_words($crawler)
-	{
-		return $words = $crawler->get('words');
-	}
+	// include more functions
+	include('functions.php');
 ?>
 
 <?php
+	// function to crawl a link
 	function crawl($mysqli, $link, $link_from, $maxDepth)
 	{		
 		if(filter_var($link, FILTER_VALIDATE_URL) AND (str_starts_with($link, 'http://') OR str_starts_with($link, 'https://')))
 		{
+			// crawl link
 			$crawler = new Crawler($link);
 			
 			echo $link."<br>";
@@ -331,6 +81,8 @@
 				delete_relation_link_refers_to_link_to_database($mysqli, $link_from, $link);
 				add_relation_link_refers_to_link_to_database($mysqli, $link_from, $link);
 			}
+			
+			// write word to link relation to the database
 			
 			$words = crawler_get_words($crawler);
 			
@@ -364,6 +116,8 @@
 				}
 			}
 			
+			// write link to link relation to the database
+			
 			$links = crawler_get_links($crawler);
 			
 			if ($links != false AND !empty($links) AND $boolean_crawl == true)
@@ -393,11 +147,15 @@
 						{
 							add_relation_link_refers_to_link_to_database($mysqli, ($crawler->base), $link);
 						}
-					}					
+					}
+
+					usleep(150 * 1000);
 				}
 			}
 			
 			echo "<hr>";
+			
+			// crawl links if the recursion depth is not reached
 			
 			if ($maxDepth > 0 AND $boolean_crawl == true AND $links != false AND !empty($links))
 			{				
@@ -478,13 +236,15 @@
 		<input type="submit" value="Suchen" name="submit_search" id="search_submit">
 	</form>
 <?php
+		// start search request
 		if (isset($_POST['submit_search']))
 		{
 			echo "<br><hr><br>";
 			
 			if(trim($_POST['search']) != "")
 			{
-				$search_words = htmlspecialchars($_POST['search']); // Freie Stellen Feuerwehr Heidenheim
+				// extract words from text and remove stop words
+				$search_words = htmlspecialchars($_POST['search']);
 				$search_words = text_to_words_array_with_count($search_words);
 				
 				$info =  "<b style='font-size: 15pt;'>Suchwörter (ohne Stoppwörter):&ensp;";
@@ -509,6 +269,8 @@
 				if (empty($search_words) == false)
 				{
 					echo $info."</b><br><br>";
+					
+					// create and execute database query
 					
 					$sql = "SELECT *, 
 								   COUNT(count) AS anzahl_verschiedene_woerter, 
@@ -636,6 +398,7 @@
 		<input type="submit" value="Hinzufügen" name="submit_add_link" id="submit">
 	</form>
 <?php
+		// add / crawl link to database if button was pressed
 		if (isset($_POST['submit_add_link']))
 		{
 			$link = $_POST['link'];
@@ -652,6 +415,7 @@
     }
     else if ($mode == "worker")
     {
+		// the worker functionality
 		while (true)
 		{
 			$sql = "SELECT * FROM link ORDER BY id ASC;";
@@ -674,8 +438,8 @@
     }
 	else if ($mode == "test")
     {
-        crawl($mysqli, 'https://www.heidenheim.de', "", 2);
-		#crawl($mysqli, 'http://www.dhbw-heidenheim.de', "", 21);
+        #crawl($mysqli, 'https://www.heidenheim.de', "", 2);
+		#crawl($mysqli, 'https://www.dhbw-heidenheim.de', "", 21);
 		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Rainer_Kuhlen', "", 2);
 		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Haushund', "", 2);
 		#crawl($mysqli, 'https://www.vdi.de', "", 2);
@@ -712,5 +476,6 @@
 </html>
 
 <?php
+	// close the database connection
 	include('close.php');
 ?>

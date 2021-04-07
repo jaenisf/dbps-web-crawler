@@ -1,4 +1,5 @@
 <?php
+	// the web crawler class
 	class Crawler {
 		protected $markup = '';
 		public $base = '';
