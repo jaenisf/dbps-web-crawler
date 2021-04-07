@@ -49,8 +49,6 @@
 	{				
 		if(filter_var($link, FILTER_VALIDATE_URL) AND (str_starts_with($link, 'http://') OR str_starts_with($link, 'https://')))
 		{
-			echo $link."<br>";
-			
 			// crawl link
 			$crawler = new Crawler($link);
 			
@@ -441,7 +439,7 @@
 	else if ($mode == "test")
     {
         crawl($mysqli, 'https://www.heidenheim.de', "", 2);
-		#crawl($mysqli, 'https://www.dhbw-heidenheim.de', "", 21);
+		crawl($mysqli, 'https://www.dhbw-heidenheim.de', "", 21);
 		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Rainer_Kuhlen', "", 2);
 		#crawl($mysqli, 'https://de.wikipedia.org/wiki/Haushund', "", 2);
 		#crawl($mysqli, 'https://www.vdi.de', "", 2);
