@@ -47,6 +47,8 @@
 	// function to crawl a link
 	function crawl($mysqli, $link, $link_from, $maxDepth)
 	{		
+		echo "test";
+		
 		if(filter_var($link, FILTER_VALIDATE_URL) AND (str_starts_with($link, 'http://') OR str_starts_with($link, 'https://')))
 		{
 			// crawl link
