@@ -3,7 +3,7 @@
 	set_time_limit(60*60);
 	
 	// set error reporting to 0
-	error_reporting(0);
+	//error_reporting(0);
 
 	// connect to the database
 	include('connect.php');
@@ -468,7 +468,7 @@
     }
     else
     {
-        echo "Error: Crawler mode [".$crawler_mode."] not supported.<br>";
+        echo "Error: Crawler mode [".$mode."] not supported.<br>";
     }
 ?>
 

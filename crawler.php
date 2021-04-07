@@ -31,7 +31,7 @@
 		protected function _get_links() {
 			if (!empty($this->markup)){
 				//preg_match_all('/<a([^>]+)\>(.*?)\<\/a\>/i', $this->markup, $links);
-				preg_match_all('/href=\"(.*?)\"/i', $this->markup, $links);
+				preg_match_all('/href=(\"([^"]+)\"|\'([^\']+)\')/', $this->markup, $links);
 				return !empty($links[1]) ? $links[1] : FALSE;
 			}
 		}
