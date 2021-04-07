@@ -20,8 +20,7 @@
 			  `time_stamp` timestamp NULL DEFAULT NULL,
 			  `title` char(255) DEFAULT NULL,
 			  `page_rank` float DEFAULT NULL,
-			  PRIMARY KEY (`id`),
-			  UNIQUE INDEX `url` (`url`)
+			  PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 	query($mysqli, $sql);
 	
