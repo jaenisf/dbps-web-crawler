@@ -51,11 +51,11 @@
 		echo $link."<br>";
 		
 		var_dump(filter_var($link, FILTER_VALIDATE_URL));
-		var_dump(str_starts_with($link, 'http://'));
-		var_dump(str_starts_with($link, 'https://'));
 		
 		if(filter_var($link, FILTER_VALIDATE_URL) AND (str_starts_with($link, 'http://') OR str_starts_with($link, 'https://')))
 		{
+			echo $link."<br>";
+			
 			// crawl link
 			$crawler = new Crawler($link);
 			
