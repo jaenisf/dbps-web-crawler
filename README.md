@@ -24,8 +24,8 @@ Test-System ist bis Ende Mai online verfügbar.
 
 ## Beispiele
 
-[1) Weboberfläche zum Durchsuchen der Daten](https://github.com/jaenisf/dbps-web-crawler/blob/main/ER-Diagramm.pdf)](https://github.com/jaenisf/dbps-web-crawler/blob/main/search.png)
+[Weboberfläche zum Durchsuchen der Daten](https://github.com/jaenisf/dbps-web-crawler/blob/main/ER-Diagramm.pdf)](https://github.com/jaenisf/dbps-web-crawler/blob/main/search.png)
 
-[2) Worker zum Updaten und Crawlen neuer Links](https://github.com/jaenisf/dbps-web-crawler/blob/main/ER-Diagramm.pdf)](https://github.com/jaenisf/dbps-web-crawler/blob/main/worker.png)
+[Worker zum Updaten und Crawlen neuer Links](https://github.com/jaenisf/dbps-web-crawler/blob/main/ER-Diagramm.pdf)](https://github.com/jaenisf/dbps-web-crawler/blob/main/worker.png)
 
-[3) Link zur Datenbank hinzufügen inkl. crawlen](https://github.com/jaenisf/dbps-web-crawler/blob/main/ER-Diagramm.pdf)](https://github.com/jaenisf/dbps-web-crawler/blob/main/add_link.png)
+[Link zur Datenbank hinzufügen inkl. crawlen](https://github.com/jaenisf/dbps-web-crawler/blob/main/ER-Diagramm.pdf)](https://github.com/jaenisf/dbps-web-crawler/blob/main/add_link.png)
