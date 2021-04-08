@@ -20,7 +20,7 @@ Der Web-Crawler verfügt über vier Modi:
 
 [Link zum Test-System](http://207.154.200.188/dbps-web-crawler/index.php)
 
-Test-System ist bis Ende Mai online verfügbar.
+Test-System ist bis Ende Mai 2021 online verfügbar.
 
 ## Beispiele
 
