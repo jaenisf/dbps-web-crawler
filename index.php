@@ -26,6 +26,11 @@
 	if ($mode == 'test') {
 		include('initialize.php');
 	}
+
+	// if mode is empty the choose search mode
+	if ($mode == '') {
+		$mode = "test";
+	}
 	
 	// select the database
 	$sql = "USE `dbps-web-crawler`;";
@@ -287,7 +292,8 @@
 					
 					foreach ($search_words as $word => $count)
 					{
-						$sql = $sql."word LIKE '%$word%' OR ";
+						#$sql = $sql."word LIKE '%$word%' OR ";
+						$sql = $sql."word = '$word' OR ";
 						$sql_count = $sql_count."word LIKE '%$word%' OR ";
 					}
 					
@@ -429,7 +435,7 @@
 					
 					if (check_if_link_is_up_to_date_in_database($mysqli, $link) == false)
 					{
-						echo "UPDATE LINK IN DATABASE WITH CRAWLING: ".$link."<br><br>";
+						echo "<br><br>UPDATE LINK IN DATABASE WITH CRAWLING: ".$link."<br><br>";
 						crawl($mysqli, $link, "", 0);						
 					} 
 				}
