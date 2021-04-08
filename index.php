@@ -325,18 +325,8 @@
 					
 					$time = $end - $start;
 					
-					if ($count == 1)
-					{
-						echo "1 Ergebniss (".$time." Sekunden) <br><br>";
-					}
-					else if ($count == 0)
-					{
-						echo "0 Ergebnisse (".$time." Sekunden) <br><br>";
-					}
-					else
-					{
-						echo "Ungefähr ".$count." Ergebnisse (".$time." Sekunden) <br><br>";
-					}
+					#echo "Ungefähr ".$count." Ergebnisse (".$time." Sekunden) <br><br>";
+					echo "Ungefähr ".$time." Sekunden <br><br>";
 								   
 					if (empty($result)) echo $mysqli->error;
 
