@@ -3,7 +3,7 @@
 	set_time_limit(60*60);
 	
 	// set error reporting to 0
-	//error_reporting(0);
+	error_reporting(0);
 
 	// connect to the database
 	include('connect.php');
