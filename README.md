@@ -24,8 +24,14 @@ Test-System ist bis Ende Mai online verfügbar.
 
 ## Beispiele
 
+### Modus - Suchen
+
 ![Weboberfläche zum Durchsuchen der Daten](https://github.com/jaenisf/dbps-web-crawler/blob/main/search.png)
 
-![Worker zum Updaten und Crawlen neuer Links](https://github.com/jaenisf/dbps-web-crawler/blob/main/worker.png)
+### Modus - Hinzufügen eines Links
 
 ![Link zur Datenbank hinzufügen inkl. crawlen](https://github.com/jaenisf/dbps-web-crawler/blob/main/add_link.png)
+
+### Modus - Worker
+
+![Worker zum Updaten und Crawlen neuer Links](https://github.com/jaenisf/dbps-web-crawler/blob/main/worker.png)
