@@ -24,6 +24,12 @@ Test-System ist bis Ende Mai online verfügbar.
 
 ## Beispiele
 
+### SQL Test-Datenbank
+
+Die Test-Datenbank kann als .sql-Datei unter folgendem Link abgerufen werden:
+
+[Link zur SQL Test-Datenbank](https://github.com/jaenisf/dbps-web-crawler/blob/main/dbps-web-crawler.sql)
+
 ### Modus - Suchen
 
 ![Weboberfläche zum Durchsuchen der Daten](https://github.com/jaenisf/dbps-web-crawler/blob/main/search.png)
