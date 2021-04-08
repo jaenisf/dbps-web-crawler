@@ -19,7 +19,7 @@
 	else 
 	{
         $mode = "search";
-        echo "The 'mode' argument is missing. Possible are 'search', 'add_link' and 'worker'. Using default 'search' ...";
+        #echo "The 'mode' argument is missing. Possible are 'search', 'add_link' and 'worker'. Using default 'search' ...";
     } 
 	
 	// if mode is test then initialize the database
